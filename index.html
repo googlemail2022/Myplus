@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google+ Клон с Firebase</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+
+  <!-- Верхняя красная шапка -->
+  <header class="bg-red-600 text-white p-4 flex items-center justify-between shadow-md">
+    <h1 class="text-xl font-bold">My+</h1>
+  </header>
+
+  <!-- Основной контент -->
+  <main class="flex-1 overflow-auto p-4 relative">
+
+    <!-- Вкладка Лента -->
+    <div id="tab-feed">
+
+      <!-- Кружки -->
+      <div class="flex space-x-2 mb-4 overflow-x-auto">
+        <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">🎨</div>
+        <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">🏀</div>
+        <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">📚</div>
+        <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">🎵</div>
+        <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">💻</div>
+      </div>
+
+      <!-- Лента постов -->
+      <div id="feed" class="space-y-4"></div>
+
+      <!-- Плавающая кнопка нового поста -->
+      <button id="newPostBtn" class="fixed bottom-24 right-6 bg-red-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-red-700">✏️</button>
+    </div>
+
+    <!-- Заглушки для других вкладок -->
+    <div id="tab-collections" class="hidden"><p class="text-gray-600">Подборки</p></div>
+    <div id="tab-communities" class="hidden"><p class="text-gray-600">Сообщества</p></div>
+    <div id="tab-notifications" class="hidden"><p class="text-gray-600">Оповещения</p></div>
+
+  </main>
+
+  <!-- Нижняя серая черточка с вкладками -->
+  <footer class="bg-gray-200 p-2 flex justify-around shadow-inner">
+    <button class="tab-bottom" data-tab="feed">Лента</button>
+    <button class="tab-bottom" data-tab="collections">Подборки</button>
+    <button class="tab-bottom" data-tab="communities">Сообщества</button>
+    <button class="tab-bottom" data-tab="notifications">Оповещения</button>
+  </footer>
+
+  <!-- Firebase SDK и логика -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    // ===== Вставь сюда свой firebaseConfig =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7Xz5QiY_bq1L26ZnoAy5oj0a8l-DRVo4",
+      authDomain: "fggda-4abaf.firebaseapp.com",
+      databaseURL: "https://fggda-4abaf-default-rtdb.firebaseio.com",
+      projectId: "fggda-4abaf",
+      storageBucket: "fggda-4abaf.firebasestorage.app",
+      messagingSenderId: "244641712781",
+      appId: "1:244641712781:web:dbc379fe6573e85c9130c4",
+      measurementId: "G-2BX454Q8JP"
+    };
+    // ============================================
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const feed = document.getElementById('feed');
+    const newPostBtn = document.getElementById('newPostBtn');
+
+    // Добавление поста
+    newPostBtn.addEventListener('click', async () => {
+      const text = prompt('Напишите пост:');
+      if(text){
+        await addDoc(collection(db, "posts"), {
+          text,
+          author: "Вы",
+          createdAt: serverTimestamp()
+        });
+      }
+    });
+
+    // Отображение всех постов в реальном времени
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    onSnapshot(q, snapshot => {
+      feed.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = "bg-white p-4 rounded-lg shadow-md";
+        div.innerHTML = `
+          <p class="font-semibold">${data.author}</p>
+          <p class="text-sm text-gray-500 mb-2">${data.createdAt?.seconds ? new Date(data.createdAt.seconds*1000).toLocaleString() : ''}</p>
+          <p>${data.text}</p>
+        `;
+        feed.appendChild(div);
+      });
+    });
+
+    // Переключение вкладок
+    const tabs = document.querySelectorAll('.tab-bottom');
+    const tabContents = {
+      feed: document.getElementById('tab-feed'),
+      collections: document.getElementById('tab-collections'),
+      communities: document.getElementById('tab-communities'),
+      notifications: document.getElementById('tab-notifications'),
+    };
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        Object.values(tabContents).forEach(c => c.classList.add('hidden'));
+        tabContents[btn.dataset.tab].classList.remove('hidden');
+      });
+    });
+  </script>
+
+</body>
+</html> 
