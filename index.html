@@ -17,7 +17,7 @@
     <a href="#" class="hover:text-red-500">Подборки</a>
     <a href="#" class="hover:text-red-500">Уведомления</a>
   </nav>
-  <button id="loginBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg">Войти</button>
+  <button id="loginBtn" type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg">Войти</button>
 </header>
 
 <main class="container mx-auto mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -37,7 +37,7 @@
       <textarea id="postInput" class="w-full p-2 border rounded-md" rows="3" placeholder="Что у вас нового?"></textarea>
       <div class="flex justify-between items-center mt-2">
         <small id="charCount" class="text-sm text-gray-500">0 / 1000</small>
-        <button id="postBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg">Опубликовать</button>
+        <button id="postBtn" type="button" class="bg-red-500 text-white px-4 py-2 rounded-lg">Опубликовать</button>
       </div>
     </div>
 
@@ -45,15 +45,14 @@
   </section>
 </main>
 
-<!-- Login Modal -->
 <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
   <div class="bg-white p-6 rounded-lg shadow-lg w-80">
     <h2 class="text-xl font-bold mb-4">Вход</h2>
     <input id="loginName" type="text" placeholder="Имя" class="w-full mb-2 p-2 border rounded-md">
     <input id="loginEmail" type="email" placeholder="Email" class="w-full mb-4 p-2 border rounded-md">
     <div class="flex justify-end space-x-2">
-      <button id="closeLogin" class="px-3 py-2 bg-gray-300 rounded-lg">Отмена</button>
-      <button id="submitLogin" class="px-3 py-2 bg-red-500 text-white rounded-lg">Войти</button>
+      <button id="closeLogin" type="button" class="px-3 py-2 bg-gray-300 rounded-lg">Отмена</button>
+      <button id="submitLogin" type="button" class="px-3 py-2 bg-red-500 text-white rounded-lg">Войти</button>
     </div>
   </div>
 </div>
@@ -61,11 +60,13 @@
 <div id="toast" class="fixed bottom-6 right-6 hidden bg-gray-800 text-white px-4 py-2 rounded-md shadow-md"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
+document.addEventListener('DOMContentLoaded', () => {
 
-  // ===== Вставь сюда свой Firebase конфиг =====
+  // ===== Firebase SDK =====
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyA7Xz5QiY_bq1L26ZnoAy5oj0a8l-DRVo4",
     authDomain: "fggda-4abaf.firebaseapp.com",
@@ -76,11 +77,12 @@
     appId: "1:244641712781:web:dbc379fe6573e85c9130c4",
     measurementId: "G-2BX454Q8JP"
   };
+
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const db = getFirestore(app);
 
-  // UI
+  // ===== UI элементы =====
   const feed = document.getElementById('feed');
   const postBtn = document.getElementById('postBtn');
   const postInput = document.getElementById('postInput');
@@ -130,6 +132,7 @@
       loginModal.classList.remove('hidden');
     }
   });
+
   closeLogin.addEventListener('click',()=>loginModal.classList.add('hidden'));
   submitLogin.addEventListener('click',()=>{
     const name=document.getElementById('loginName').value.trim();
@@ -177,4 +180,4 @@
             <p class="text-sm text-gray-500">${data.createdAt?.seconds ? new Date(data.createdAt.seconds*1000).toLocaleString() : ''}</p>
           </div>
         </div>
-        <p class="mb-3">${data.text}</p
+        <p class="mb-3">${data.text}</p>
